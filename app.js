@@ -16,8 +16,7 @@ app.use('/public', express.static('public'))
 app.use(async (req, res, next) => {
   if(['/app','/ip', '/request', '/country', '/favicon.ico'].includes(req.url) || req.url.startsWith('/public')) return next()
   try {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
-    console.log(ip)
+    const ip = req.headers['x-forwarded-for']
     const method = req.method
     const route = req.url
     const protocol = req.protocol
@@ -33,7 +32,6 @@ app.use(async (req, res, next) => {
     let location = null
     if(!ipData) {
         location = (await axios.get(`http://ip-api.com/json/${ip}`))
-        console.log(location.data)
   
         await prisma.organization.upsert({
             where: {
