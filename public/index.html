@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body>
+    <ul id="countries">
+        <li class="country">
+            <span class="country__presentation">
+                <span class="country__flag">🇺🇸</span>
+                <span class="country__name">dd</span>
+            </span>
+
+            <span class="info">
+                <span class="country__requests">12 requests</span>
+                from
+                <span class="country__ips">2 ips</span>
+            </span>
+        </li>
+    </ul>
+    <template id="countryTemplate">
+        <li class="country">
+            <span class="country__presentation">
+                <span class="country__flag"></span>
+                <span class="country__name"></span>
+            </span>
+            <span class="info">
+                <span class="country__requests"></span>
+                from
+                <span class="country__ips"></span>
+            </span>
+        </li>
+    </template>
+
+    <script src="/public/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Ip" ALTER COLUMN "route" DROP NOT NULL,
+ALTER COLUMN "protocol" DROP NOT NULL;

@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ip {
+  organization Organization? @relation(fields: [organization_id], references: [id])
+  organization_id Int?
+
+  country Country @relation(fields: [country_id], references: [id])
+  country_id Int
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ip String @unique
+
+  requests Request[]
+  coordinate Coordinate?
+}
+
+model Request {
+  ip Ip @relation(fields: [ip_id], references: [id])
+  ip_id Int
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  horo DateTime
+  method String?
+  route String?
+  protocol String?
+  referer String?
+  user_agent String
+}
+
+model Country {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  country String @unique
+  country_code String @unique
+
+  regions Region[]
+  ips Ip[]
+}
+
+model Region {
+  country Country @relation(fields: [country_id], references: [id])
+  country_id Int
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  region String
+  region_name String
+
+  cities City[]
+}
+
+model City {
+  region Region @relation(fields: [region_id], references: [id])
+  region_id Int
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  city String
+  zip String
+}
+
+
+model Coordinate {
+  ip Ip @relation(fields: [ip_id], references: [id])
+  ip_id Int @unique
+
+  timezone Timezone @relation(fields: [timezone_id], references: [id])
+  timezone_id Int
+
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  latitude Float
+  longitude Float
+}
+
+
+model Timezone {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  timezone String @unique
+
+  coordinates Coordinate[]
+}
+
+model Organization {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isp String @unique
+  org String @unique
+  as String?
+
+  ips Ip[]
+}

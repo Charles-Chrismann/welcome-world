@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  list-style: none;
+}
+
+ul#countries {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+li.country {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
+  height: 72px;
+  width: 100%;
+}
+
+li.country span.info {
+  font-size: 0.8rem;
+  color: gray;
+}
+
+li.country span.country__presentation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+li.country span.country__flag {
+  font-size: 1.5rem;
+}
+
+li.country span.country__name,
+li.country span.info span.country__requests,
+li.country span.info span.country__ips {
+  font-weight: bold;
+  color: black;
+  font-size: 1rem;
+}

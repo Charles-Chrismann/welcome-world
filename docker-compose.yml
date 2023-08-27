@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  ipdb:
+    image: postgres:13
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ipdb
+      POSTGRES_PASSWORD: ipdb
+      POSTGRES_DB: ipdb
+    networks:
+      - ip
+networks:
+  ip:
