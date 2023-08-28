@@ -214,7 +214,10 @@ app.get('/ip', async (req, res) => {
       }
     }
   })
-  res.send(ips)
+  res.send(ips.map(ip => {
+    delete ip.ip
+    
+  }))
 })
 
 app.get('/country', async (req, res) => {
