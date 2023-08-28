@@ -216,7 +216,10 @@ app.get('/ip', async (req, res) => {
       }
     }
   })
-  res.send(ips)
+  res.send(ips.map(ipObj => {
+    const {ip, ...noIp} = ipObj
+    return noIp
+  }))
 })
 
 app.get('/country', async (req, res) => {
@@ -240,7 +243,13 @@ app.get('/country', async (req, res) => {
       }
     }
   })
-  res.send(countries.sort((a, b) => b.ips.reduce((acc, current) => acc + current.requests.length, 0) - a.ips.reduce((acc, current) => acc + current.requests.length, 0)))
+  res.send(countries.sort((a, b) => b.ips.reduce((acc, current) => acc + current.requests.length, 0) - a.ips.reduce((acc, current) => acc + current.requests.length, 0)).map(countryObj => {
+    countryObj.ips = countryObj.ips.map(ipObj => {
+      const {ip, ...noIp} = ipObj
+      return noIp
+    })
+    return countryObj
+    }))
 })
 
 
@@ -256,7 +265,12 @@ app.get('/request', async (req, res) => {
       }
     }
   })
-  res.send(requests)
+  res.send(requests.map(requestObj => {
+    let {ip: ipObj, ...noIp} = requestObj
+    let {ip, ...noIpObj} = ipObj
+    requestObj.ip = noIpObj
+    return requestObj
+  }))
 })
 
 app.listen(port, () => {
