@@ -5,17 +5,22 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start:prod; else npm run start:dev; fi",
+    "start:dev": "nodemon app.js",
+    "start:prod": "node app.js",
     "db:migrate": "npx prisma migrate reset && npx prisma migrate dev && npx prisma studio --browser=none"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "nodemon": "^3.0.1",
     "prisma": "^5.2.0"
   },
   "dependencies": {
     "@prisma/client": "^5.2.0",
     "axios": "^1.4.0",
+    "canvas": "^2.11.2",
     "express": "^4.18.2"
   }
 }

@@ -2,13 +2,27 @@ version: '3.8'
 services:
   ipdb:
     image: postgres:13
+    container_name: ipdb
+    hostname: ipdb
     ports:
       - 5432:5432
     environment:
       POSTGRES_USER: ipdb
       POSTGRES_PASSWORD: ipdb
       POSTGRES_DB: ipdb
-    networks:
-      - ip
-networks:
-  ip:
+      
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env
+    depends_on:
+      - ipdb
