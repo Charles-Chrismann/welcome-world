@@ -5,7 +5,7 @@ ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /app
 
-ADD package*.json /app
+ADD package*.json /app/
 
 COPY prisma ./prisma/
 
