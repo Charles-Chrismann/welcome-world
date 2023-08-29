@@ -10,6 +10,8 @@ services:
       POSTGRES_USER: ipdb
       POSTGRES_PASSWORD: ipdb
       POSTGRES_DB: ipdb
+    networks:
+      - ip
       
   app:
     build:
@@ -26,3 +28,7 @@ services:
       - .env
     depends_on:
       - ipdb
+    networks:
+      - ip
+networks:
+  ip:
