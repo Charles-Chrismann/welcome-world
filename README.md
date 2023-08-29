@@ -1,8 +1,16 @@
-# welcome-world
+<h1 align="center">welcome-world</h1>
 
 This project was inspired by a story I heard from either a YouTuber or a content creator. They made a video where they set up a server and demonstrated how quickly they received requests attempting to find unprotected configuration files such as environment variable files and database login credentials.
 
 This project is a simple Express server that logs these connections to identify the countries from which these requests originate.
+
+<p align="center">
+    <img src="http://wtth.charles-chrismann.fr/img">
+<p>
+
+<p align="center">
+    Countries in database
+<p>
 
 The project runs on an EC2 instance and can be accessed at [http://wtth.charles-chrismann.fr/app](http://wtth.charles-chrismann.fr/app).
 
