@@ -15,7 +15,7 @@ const port = 3000
 
 app.use('/public', express.static('public'))
 app.use(async (req, res, next) => {
-  if(['/app','/ip', '/request', '/country', '/favicon.ico', '/img'].includes(req.url) || req.url.startsWith('/public')) return next()
+  if(['/app','/ip', '/request', '/country', '/favicon.ico'].includes(req.url) || req.url.startsWith('/public') || req.url.startsWith('/img')) return next()
   try {
     let ip = req.headers['x-forwarded-for']
     if(!ip) ip = ['12.76.98.121', '54.13.197.201', '112.76.98.121', '154.13.197.201', '122.100.100.100', '123.100.100.100', '124.100.100.100', '128.100.100.100'][Math.floor(Math.random() * 8)] // for dev only, never true in prod
@@ -293,6 +293,8 @@ app.get('/img', async (req, res) => {
       requests: country.ips.reduce((acc, current) => acc + current.requests.length, 0)
     }
   }).sort((a, b) => b.requests - a.requests)
+
+  console.log(countriesData)
 
   const flagDims = {
     width: 144,
