@@ -5,7 +5,7 @@ This project was inspired by a story I heard from either a YouTuber or a content
 This project is a simple Express server that logs these connections to identify the countries from which these requests originate.
 
 <p align="center">
-    <img src="http://wtth.charles-chrismann.fr/img">
+    <img src="http://wtth.charles-chrismann.fr/img?a=1">
 <p>
 
 <p align="center">
