@@ -55,7 +55,7 @@ NOTE: this section is for deployment on aws ec2 instance
 Create Docker the docker image
 
 ```sh
-docker build -t wtth:1.0.0 .
+docker build -t wtth:1.0.2 .
 ```
 
 Start the database
@@ -75,7 +75,7 @@ change back .env > DATABASE_URL @localhost to @ipdb
 Run the docker image on the same network as the database
 
 ```sh
-docker run -p 3000:3000 --network welcome-world_ip wtth:1.0.0
+docker run -p 3000:3000 --network welcome-world_ip -u root wtth:1.0.2
 ```
 
 ## TODO list
