@@ -42,6 +42,12 @@ Returns an image with the flag of all country requesters flag with the number of
     <img src="http://wtth.charles-chrismann.fr/img">
 <p>
 
+## Development
+
+```
+docker run -p 3000:3000 --network transidb_ip -v `pwd`:/app/node/ -e NODE_ENV=dev wtth:1.0.5
+```
+
 ## Deployment
 
 NOTE: this section is for deployment on aws ec2 instance

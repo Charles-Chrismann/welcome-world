@@ -1,4 +1,6 @@
 import * as path from 'path'
+import * as fs from 'fs/promises'
+import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
@@ -12,6 +14,106 @@ const prisma = new PrismaClient()
 
 const app = express()
 const port = 3000
+
+async function saveImageFromCanvasBuffer(canvasBuffer, filename) {
+  try {
+    await fs.writeFile(filename, canvasBuffer)
+    console.log("The file was saved!");
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+async function buildImg() {
+  const countries = await prisma.country.findMany({
+    include: {
+      ips: {
+        include: {
+          requests: true
+        }
+      }
+    }
+  })
+
+  const countriesData = countries.map(country => {
+    return {
+      country: country.country,
+      country_code: country.country_code,
+      ips: country.ips.length,
+      requests: country.ips.reduce((acc, current) => acc + current.requests.length, 0)
+    }
+  }).sort((a, b) => b.requests - a.requests)
+
+  const flagDims = {
+    width: 144,
+    height: 108
+  }
+  const matrixWidth = Math.ceil(Math.sqrt(countriesData.length))
+  const matrixHeight = Math.ceil(countriesData.length / matrixWidth)
+  const width = matrixWidth * flagDims.width
+  const height = flagDims.height * matrixWidth - (98/108 * flagDims.height) * (matrixHeight === matrixWidth ? 0 : 1)
+  const canvas = createCanvas(width, height)
+  const ctx = canvas.getContext('2d')
+
+
+
+  let flagImagePromises = []
+  countriesData.forEach((country) => {
+    flagImagePromises.push(loadImage(`https://flagpedia.net/data/flags/icon/${flagDims.width}x${flagDims.height}/${country.country_code.toLowerCase()}.png`))
+  })
+
+  let loadedImages = await Promise.all(flagImagePromises)
+
+  loadedImages.forEach((image, index) => {
+    const row = Math.floor(index / matrixWidth)
+    const col = index % matrixWidth
+    const x = (index % matrixWidth) * flagDims.width
+    const y = Math.floor(index / matrixWidth) * flagDims.height - (Math.floor(flagDims.height * 0.1) * row)
+    ctx.drawImage(image, x, y + (matrixWidth - col - 1) * flagDims.height * 0.1, flagDims.width, flagDims.height)
+
+    ctx.font = "18px sans-serif";
+    const reqOrReqs = countriesData[index].requests === 1 ? 'req' : 'reqs'
+    const reqOrReqsMesure = ctx.measureText(reqOrReqs)
+    ctx.fillStyle = 'white'
+    ctx.fillText(reqOrReqs, (col + 1) * flagDims.width - reqOrReqsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
+    ctx.fillStyle = 'black'
+    ctx.strokeText(reqOrReqs, (col + 1) * flagDims.width - reqOrReqsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
+
+    ctx.font = "24px sans-serif";
+    const reqNumberMesure = ctx.measureText(countriesData[index].requests)
+    ctx.fillStyle = 'white'
+    ctx.fillText(countriesData[index].requests, (col + 1) * flagDims.width - reqOrReqsMesure.width - reqNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
+    ctx.fillStyle = 'black'
+    ctx.strokeText(countriesData[index].requests, (col + 1) * flagDims.width - reqOrReqsMesure.width - reqNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
+
+    ctx.font = "18px sans-serif";
+    const ipOrIps = countriesData[index].ips === 1 ? 'ip' : 'ips'
+    const ipOrIpsMesure = ctx.measureText(ipOrIps)
+    ctx.fillStyle = 'white'
+    ctx.fillText(ipOrIps, (col + 1) * flagDims.width - ipOrIpsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
+    ctx.fillStyle = 'black'
+    ctx.strokeText(ipOrIps, (col + 1) * flagDims.width - ipOrIpsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
+
+    ctx.font = "24px sans-serif";
+    const ipNumberMesure = ctx.measureText(countriesData[index].ips)
+    ctx.fillStyle = 'white'
+    ctx.fillText(countriesData[index].ips, (col + 1) * flagDims.width - ipOrIpsMesure.width - ipNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
+    ctx.fillStyle = 'black'
+    ctx.strokeText(countriesData[index].ips, (col + 1) * flagDims.width - ipOrIpsMesure.width - ipNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
+  })
+
+  return canvas.toBuffer()
+}
+
+async function buildAndSaveImg() {
+  saveImageFromCanvasBuffer(await buildImg(), 'public/img.png')
+}
+
+buildAndSaveImg()
+const interval = setInterval(() => {
+  console.log('Building and saving image at ' + (new Date()).toISOString() + '...')
+  buildAndSaveImg()
+}, 1000 * 60 * 10)
 
 app.use('/public', express.static('public'))
 app.use(async (req, res, next) => {
@@ -275,86 +377,15 @@ app.get('/request', async (req, res) => {
 })
 
 app.get('/img', async (req, res) => {
-  const countries = await prisma.country.findMany({
-    include: {
-      ips: {
-        include: {
-          requests: true
-        }
-      }
-    }
-  })
-
-  const countriesData = countries.map(country => {
-    return {
-      country: country.country,
-      country_code: country.country_code,
-      ips: country.ips.length,
-      requests: country.ips.reduce((acc, current) => acc + current.requests.length, 0)
-    }
-  }).sort((a, b) => b.requests - a.requests)
-
-  console.log(countriesData)
-
-  const flagDims = {
-    width: 144,
-    height: 108
+  let img
+  try {
+    img = await fs.readFile('public/img.png')
+  } catch (error) {
+    res.status(500).send('Error')
   }
-  const matrixWidth = Math.ceil(Math.sqrt(countriesData.length))
-  const width = matrixWidth * flagDims.width
-  const canvas = createCanvas(width, flagDims.height * matrixWidth)
-  const ctx = canvas.getContext('2d')
 
-
-
-  let flagImagePromises = []
-  countriesData.forEach((country) => {
-    flagImagePromises.push(loadImage(`https://flagpedia.net/data/flags/icon/${flagDims.width}x${flagDims.height}/${country.country_code.toLowerCase()}.png`))
-  })
-
-  let loadedImages = await Promise.all(flagImagePromises)
-
-  loadedImages.forEach((image, index) => {
-    const row = Math.floor(index / matrixWidth)
-    const col = index % matrixWidth
-    const x = (index % matrixWidth) * flagDims.width
-    const y = Math.floor(index / matrixWidth) * flagDims.height - (Math.floor(flagDims.height * 0.1) * row)
-    ctx.drawImage(image, x, y + (matrixWidth - col - 1) * flagDims.height * 0.1, flagDims.width, flagDims.height)
-
-    ctx.font = "18px sans-serif";
-    const reqOrReqs = countriesData[index].requests === 1 ? 'req' : 'reqs'
-    const reqOrReqsMesure = ctx.measureText(reqOrReqs)
-    ctx.fillStyle = 'white'
-    ctx.fillText(reqOrReqs, (col + 1) * flagDims.width - reqOrReqsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
-    ctx.fillStyle = 'black'
-    ctx.strokeText(reqOrReqs, (col + 1) * flagDims.width - reqOrReqsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
-
-    ctx.font = "24px sans-serif";
-    const reqNumberMesure = ctx.measureText(countriesData[index].requests)
-    ctx.fillStyle = 'white'
-    ctx.fillText(countriesData[index].requests, (col + 1) * flagDims.width - reqOrReqsMesure.width - reqNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
-    ctx.fillStyle = 'black'
-    ctx.strokeText(countriesData[index].requests, (col + 1) * flagDims.width - reqOrReqsMesure.width - reqNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1))
-
-    ctx.font = "18px sans-serif";
-    const ipOrIps = countriesData[index].ips === 1 ? 'ip' : 'ips'
-    const ipOrIpsMesure = ctx.measureText(ipOrIps)
-    ctx.fillStyle = 'white'
-    ctx.fillText(ipOrIps, (col + 1) * flagDims.width - ipOrIpsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
-    ctx.fillStyle = 'black'
-    ctx.strokeText(ipOrIps, (col + 1) * flagDims.width - ipOrIpsMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
-
-    ctx.font = "24px sans-serif";
-    const ipNumberMesure = ctx.measureText(countriesData[index].ips)
-    ctx.fillStyle = 'white'
-    ctx.fillText(countriesData[index].ips, (col + 1) * flagDims.width - ipOrIpsMesure.width - ipNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
-    ctx.fillStyle = 'black'
-    ctx.strokeText(countriesData[index].ips, (col + 1) * flagDims.width - ipOrIpsMesure.width - ipNumberMesure.width, flagDims.height * (row + 1.05) - reqOrReqsMesure.emHeightAscent + (matrixWidth - col - 1) * flagDims.height * 0.1 - (flagDims.height * row * 0.1) - reqOrReqsMesure.emHeightAscent * 1.2)
-  })
-
-  const imgBuffer = canvas.toBuffer()
   res.setHeader('Content-Type', 'image/png')
-  res.send(imgBuffer)
+  res.send(img)
 })
 
 app.listen(port, () => {
