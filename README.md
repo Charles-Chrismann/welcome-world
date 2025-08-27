@@ -4,19 +4,9 @@ This project was inspired by a story I heard from either a YouTuber or a content
 
 This project is a simple Express server that logs these connections to identify the countries from which these requests originate.
 
-<p align="center">
-    <img src="http://wtth.charles-chrismann.fr/img?a=2">
-<p>
-
-<p align="center">
-    Countries in database
-<p>
-
-The project runs on an EC2 instance and can be accessed at [http://wtth.charles-chrismann.fr/app](http://wtth.charles-chrismann.fr/app).
-
 The following endpoints are accessible:
 
-### GET wtth.charles-chrismann.fr/app
+### GET /app
 
 This provides a straightforward interface to quickly visualize the number of requests made by IPs from different countries.
 
@@ -32,15 +22,12 @@ Returns a list of all data related to registered IPs (excluding the IP addresses
 
 Returns a list of all requests, including details like the HTTP method, URL, and more.
 
-/!\ NOTE: for some obvious reasons, the IP adress themselves are not displayed. /!\
+> [!NOTE]
+> For some obvious reasons, the IP adress themselves are not displayed.
 
 ### GET /img
 
-Returns an image with the flag of all country requesters flag with the number of ip and requests such as following
-
-<p align="center">
-    <img src="http://wtth.charles-chrismann.fr/img">
-<p>
+Returns an image with the flag of all country requesters flag with the number of ip and requests.
 
 ## Development
 
@@ -83,3 +70,7 @@ docker run -p 3000:3000 --network welcome-world_ip -u root wtth:1.0.2
 - [X] An image to display all country stats
 - [ ] A world map to easily visalize countries
 - [ ] A dashboard with all kind of stats
+
+## License
+
+This project is [MIT licensed](LICENSE).
